@@ -16,4 +16,17 @@ class RegionSerializer(serializers.ModelSerializer):
 class DistrictSerializer(serializers.ModelSerializer):
     class Meta:
         model = District
-        fields = ['id', '']
+        fields = ['id', 'name']
+
+
+class AppInfoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AppInfo
+        fields = [
+            'id',
+            'phone',
+            'support_email',
+            'working_hours',
+            'app_version',
+            'maintenance_mode'
+        ]
