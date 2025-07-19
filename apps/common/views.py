@@ -1,44 +1,36 @@
 from rest_framework import generics
-from .models import Page, Region, District, AppInfo
-from .serializers import PageSerializer, RegionSerializer, DistrictSerializer, AppInfoSerializer
+from rest_framework.views import APIView
+from rest_framework.response import Response
+
+from .models import Page, Region, AppInfo
+from .serializers import (
+    PageListSerializer, PageDetailSerializer,
+    RegionSerializer, AppInfoSerializer
+)
+from .pagination import CustomPagination
 
 
 class PageListView(generics.ListAPIView):
     queryset = Page.objects.all()
-    serializer_class = PageSerializer
+    serializer_class = PageListSerializer
+    pagination_class = CustomPagination
 
 
 class PageDetailView(generics.RetrieveAPIView):
     queryset = Page.objects.all()
-    serializer_class = PageSerializer
+    serializer_class = PageDetailSerializer
     lookup_field = 'slug'
 
 
-class RegionListView(generics.ListAPIView):
-    queryset = Region.objects.all()
-    serializer_class = RegionSerializer
+class RegionWithDistrictsView(APIView):
+    def get(self, request):
+        regions = Region.objects.prefetch_related('districts').all()
+        serializer = RegionSerializer(regions, many=True)
+        return Response(serializer.data)
 
 
-class RegionDetailView(generics.RetrieveAPIView):
-    queryset = Region.objects.all()
-    serializer_class = RegionSerializer
-    lookup_field = 'pk'
-
-
-class DistrictListView(generics.ListAPIView):
-    queryset = District.objects.all()
-    serializer_class = DistrictSerializer
-
-
-class DistrictDetailView(generics.RetrieveAPIView):
-    queryset = District.objects.all()
-    serializer_class = DistrictSerializer
-    lookup_field = 'pk'
-
-
-class AppInfoListView(generics.ListAPIView):
-    queryset = AppInfo.objects.all()
-    serializer_class = AppInfoSerializer
-
-    def get_object(self):
-        return AppInfo.objects.first()
+class AppInfoView(APIView):
+    def get(self, request):
+        app_info = AppInfo.objects.first()
+        serializer = AppInfoSerializer(app_info)
+        return Response(serializer.data)

@@ -1,5 +1,5 @@
 import uuid
-
+from django.utils.text import slugify
 from django.db import models
 
 
@@ -15,27 +15,43 @@ class BaseModel(models.Model):
 
 
 class Page(BaseModel):
-    slug = models.SlugField(unique=True)
-    title = models.CharField(max_length=200)
-    content  =models.TextField()
+    title = models.CharField(max_length=255)
+    content = models.TextField()
+    slug = models.SlugField(unique=True, blank=True)
 
-    def __str__(self):
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            title_uz = getattr(self, 'title_uz', None)
+            if title_uz:
+                self.slug = slugify(title_uz)
+            else:
+                self.slug = slugify(self.title)
+        super().save(*args, **kwargs)
+
+    def str(self):
         return self.title
 
 
 class Region(BaseModel):
-    name = models.CharField(max_length=200)
+    name = models.CharField(max_length=200, verbose_name="Region name")
+    guid = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
 
-    def __str__(self):
+    def str(self):
         return self.name
 
 
 class District(BaseModel):
-    region = models.ForeignKey(Region, related_name='distracts', on_delete=models.CASCADE)
-    name = models.CharField(max_length=200)
+    region = models.ForeignKey(Region, related_name='districts', on_delete=models.CASCADE)
+    name_uz = models.CharField(max_length=255)
+    name_ru = models.CharField(max_length=255)
 
     def __str__(self):
-        return self.name
+        return self.name_uz
+
+    class Meta:
+        verbose_name = "District"
+        verbose_name_plural = "Districts"
+
 
 
 class AppInfo(BaseModel):
