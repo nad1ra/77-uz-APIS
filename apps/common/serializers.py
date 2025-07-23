@@ -31,17 +31,23 @@ class PageDetailSerializer(serializers.ModelSerializer):
 
 
 class DistrictSerializer(serializers.ModelSerializer):
+    name = serializers.SerializerMethodField()
+
     class Meta:
         model = District
         fields = [
             'id',
-            'name_uz',
-            'name_ru',
+            'name',
         ]
+
+    def get_name(self, obj):
+        lang = get_language() or 'uz'
+        return getattr(obj, f"name_{lang}", obj.name_uz)
 
 
 class RegionSerializer(serializers.ModelSerializer):
     districts = DistrictSerializer(many=True)
+    name = serializers.SerializerMethodField()
 
     class Meta:
         model = Region
@@ -51,6 +57,9 @@ class RegionSerializer(serializers.ModelSerializer):
             'districts'
         ]
 
+    def get_name(self, obj):
+        lang = get_language() or 'uz'
+        return getattr(obj, f"name_{lang}", obj.name)
 
 class AppInfoSerializer(serializers.ModelSerializer):
     working_hours = serializers.SerializerMethodField()
