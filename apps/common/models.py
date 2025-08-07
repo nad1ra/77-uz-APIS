@@ -42,16 +42,14 @@ class Region(BaseModel):
 
 class District(BaseModel):
     region = models.ForeignKey(Region, related_name='districts', on_delete=models.CASCADE)
-    name_uz = models.CharField(max_length=255)
-    name_ru = models.CharField(max_length=255)
+    name = models.CharField(max_length=255)
 
     def __str__(self):
-        return self.name_uz
+        return self.name
 
     class Meta:
         verbose_name = "District"
         verbose_name_plural = "Districts"
-
 
 
 class AppInfo(BaseModel):
