@@ -1,22 +1,56 @@
-from rest_framework.views import APIView
+from rest_framework import generics, permissions, status
 from rest_framework.response import Response
-from rest_framework import status
-from rest_framework_simplejwt.views import TokenObtainPairView
-from .serializers import CustomUserSerializer, PhoneNumberTokenObtainPairSerializer
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenVerifyView
+
+from common.utils.custom_response_decorator import custom_response
+from .models import CustomUser
+from .serializers import (
+    SellerRegistrationSerializer,
+    CustomTokenObtainPairSerializer,
+    CustomTokenVerifySerializer,
+    UserMeSerializer,
+    UserUpdateSerializer,
+)
 
 
-class SellerRegistrationView(APIView):
+@custom_response
+class SellerRegistrationView(generics.CreateAPIView):
+    queryset = CustomUser.objects.all()
+    serializer_class = SellerRegistrationSerializer
 
-    def post(self, request):
-        serializer = CustomUserSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(
-                {"message": "Ariza yuborildi. Admin tasdiqlagach login va parol beriladi."},
-                status=status.HTTP_201_CREATED
-            )
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(
+            {"message": "Arizangiz qabul qilindi. Admin siz bilan tez orada bog‘lanadi."},
+            status=status.HTTP_201_CREATED
+        )
 
 
-class PhoneNumberTokenObtainPairView(TokenObtainPairView):
-    serializer_class = PhoneNumberTokenObtainPairSerializer
+@custom_response
+class CustomLoginView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
+
+
+@custom_response
+class CustomTokenVerifyView(TokenVerifyView):
+    serializer_class = CustomTokenVerifySerializer
+
+
+@custom_response
+class MeView(generics.RetrieveAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = UserMeSerializer
+
+    def get_object(self):
+        return self.request.user
+
+
+@custom_response
+class UserEditView(generics.UpdateAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = UserUpdateSerializer
+
+    def get_object(self):
+        return self.request.user
