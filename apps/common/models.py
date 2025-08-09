@@ -34,7 +34,6 @@ class Page(BaseModel):
 
 class Region(BaseModel):
     name = models.CharField(max_length=200, verbose_name="Region name")
-    guid = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
 
     def str(self):
         return self.name
@@ -46,10 +45,6 @@ class District(BaseModel):
 
     def __str__(self):
         return self.name
-
-    class Meta:
-        verbose_name = "District"
-        verbose_name_plural = "Districts"
 
 
 class AppInfo(BaseModel):

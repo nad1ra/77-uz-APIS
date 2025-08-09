@@ -1,7 +1,7 @@
 from rest_framework.views import APIView
 
 
-def api_response(view):
+def custom_response(view):
     assert issubclass(view, APIView), f"class {view.__name__} must be subclass of APIView"
 
     def inner(self, request, *args, **kwargs):
