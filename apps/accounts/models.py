@@ -30,29 +30,24 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     full_name = models.CharField(max_length=255)
     project_name = models.CharField(max_length=255)
     phone_number = models.CharField(max_length=20, unique=True)
-    profile_photo = models.ImageField(
-        upload_to="profiles/", null=True, blank=True, validators=[icon_extensions]
-    )
+    profile_photo = models.ImageField(upload_to="profiles/", null=True, blank=True)
     role = models.CharField(max_length=20, choices=Role.choices, default=Role.SELLER)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True)
     address = models.OneToOneField(Address, on_delete=models.SET_NULL, null=True, blank=True)
-
-    plain_password = models.CharField(max_length=128, null=True, blank=True)
     status = models.CharField(max_length=10, choices=Status.choices, default=Status.PENDING)
 
-    is_active = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'phone_number'
 
     objects = CustomUserManager()
 
-    def save(self, *args, **kwargs):
-        if self.status == self.Status.APPROVED and not self.plain_password:
-            password = ''.join(random.choices(string.ascii_letters + string.digits, k=8))
-            self.set_password(password)
-            self.plain_password = password
-        super().save(*args, **kwargs)
-
     def __str__(self):
-        return self.phone_number
+        return f"{self.full_name} ({self.phone_number})"
+
+    def has_perm(self, perm, obj=None):
+        return self.is_superuser
+
+    def has_module_perms(self, app_label):
+        return self.is_superuser

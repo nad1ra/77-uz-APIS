@@ -8,7 +8,6 @@ from .models import CustomUser, Address, Category
 
 
 class AddressSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Address
         fields = ["name", "lat", "long"]
@@ -63,7 +62,6 @@ class SellerRegistrationSerializer(serializers.ModelSerializer):
         return data
 
 
-
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     phone_number = serializers.CharField()
 
@@ -72,6 +70,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         password = attrs.get("password")
 
         user = authenticate(phone_number=phone_number, password=password)
+
         if not user or not user.is_active:
             raise AuthenticationFailed(
                 "No active account found with the given credentials",

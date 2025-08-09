@@ -49,8 +49,8 @@ class MeView(generics.RetrieveAPIView):
 
 @custom_response
 class UserEditView(generics.UpdateAPIView):
-    permission_classes = [permissions.IsAuthenticated]
     serializer_class = UserUpdateSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_object(self):
         return self.request.user
