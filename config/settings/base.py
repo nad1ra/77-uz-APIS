@@ -2,10 +2,6 @@ import os
 import sys
 from datetime import timedelta
 from pathlib import Path
-from dotenv import load_dotenv
-load_dotenv()
-
-
 from django.utils.translation import gettext_lazy as _
 from dotenv import load_dotenv
 
@@ -14,9 +10,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 sys.path.append(os.path.join(BASE_DIR, "apps"))
 
 load_dotenv(os.path.join(BASE_DIR, ".env"))
-
-
-DEBUG = True
 
 
 # SECURITY WARNING: keep the secret key used in production secret!
@@ -40,7 +33,7 @@ THIRD_PARTY_APPS = [
     "corsheaders",
     "drf_yasg",
     "django_cleanup.apps.CleanupSelectedConfig",
-
+    "django_extensions",
 ]
 
 LOCAL_APPS = [
@@ -98,6 +91,8 @@ DATABASES = {
     }
 }
 
+# Custom user model
+AUTH_USER_MODEL = 'accounts.CustomUser'
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
@@ -153,7 +148,11 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
-AUTHENTICATION_BACKENDS = ("django.contrib.auth.backends.ModelBackend",)
+AUTHENTICATION_BACKENDS = [
+    'accounts.authentication.PhoneNumberBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
+
 
 # Cache
 REDIS_HOST = os.environ.get("REDIS_HOST")
@@ -175,6 +174,7 @@ REST_FRAMEWORK = {
         "rest_framework_simplejwt.authentication.JWTAuthentication",
         "rest_framework.authentication.SessionAuthentication",
     ),
+    "EXCEPTION_HANDLER": "common.utils.custom_exception_handler.custom_exception_handler",
 }
 
 # Simple JWT
@@ -186,6 +186,5 @@ SIMPLE_JWT = {
     "UPDATE_LAST_LOGIN": False,
     "ALGORITHM": "HS256",
     "SIGNING_KEY": SECRET_KEY,
-    "USER_ID_FIELD": "guid",
     "USER_ID_CLAIM": "user_guid",
 }
