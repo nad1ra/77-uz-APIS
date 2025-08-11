@@ -1,6 +1,3 @@
-import random
-import string
-from common.validators import icon_extensions
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from .managers import CustomUserManager

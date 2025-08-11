@@ -28,6 +28,6 @@ class RegionSerializer(serializers.Serializer):
 class AppInfoSerializer(serializers.Serializer):
     phone = serializers.CharField()
     support_email = serializers.EmailField()
+    working_hours = serializers.CharField()
     app_version = serializers.CharField()
     maintenance_mode = serializers.BooleanField()
-    working_hours = serializers.CharField()

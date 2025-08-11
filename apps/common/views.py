@@ -12,6 +12,7 @@ from .pagination import CustomPagination
 class PageListView(generics.ListAPIView):
     queryset = Page.objects.all()
     serializer_class = PageListSerializer
+    pagination_class = CustomPagination
 
 
 class PageDetailView(generics.RetrieveAPIView):
@@ -26,6 +27,7 @@ class RegionWithDistrictsView(generics.ListAPIView):
 
 
 class AppInfoView(generics.RetrieveAPIView):
-    queryset = AppInfo.objects.all()
     serializer_class = AppInfoSerializer
-    pagination_class = CustomPagination
+
+    def get_object(self):
+        return AppInfo.objects.first()

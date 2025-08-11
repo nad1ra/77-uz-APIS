@@ -1,61 +1,62 @@
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
-from .models import CustomUser, Address
-
-
-@admin.register(CustomUser)
-class CustomUserAdmin(UserAdmin):
-    model = CustomUser
-    list_display = (
-        "phone_number",
-        "full_name",
-        "project_name",
-        "status",
-        "show_plain_password",
-    )
-    list_filter = ("status", "category")
-    search_fields = ("phone_number", "full_name", "project_name")
-    ordering = ("-id",)
-
-    fieldsets = (
-        (None, {"fields": ("phone_number", "email", "plain_password")}),
-        (
-            "Personal Info",
-            {"fields": ("full_name", "project_name", "category", "address")},
-        ),
-        (
-            "Permissions",
-            {
-                "fields": (
-                    "is_active",
-                    "is_seller",
-                    "is_staff",
-                    "is_superuser",
-                    "status",
-                )
-            },
-        ),
-        ("Important dates", {"fields": ("last_login",)}),
-    )
-
-    add_fieldsets = (
-        (
-            None,
-            {
-                "classes": ("wide",),
-                "fields": ("phone_number", "email", "password1", "password2", "status"),
-            },
-        ),
-    )
-
-    def show_plain_password(self, obj):
-        if obj.status == "approved":
-            return obj.plain_password or "Parol yo‘q"
-        return "Yashirilgan"
-
-    show_plain_password.short_description = "Parol"
+from modeltranslation.admin import TabbedTranslationAdmin
+from .models import Address, CustomUser
 
 
 @admin.register(Address)
 class AddressAdmin(admin.ModelAdmin):
-    list_display = ("name", "lat", "long")
+    list_display = ("id", "name", "lat", "long")
+    search_fields = ("name",)
+    list_filter = ("lat", "long")
+
+
+@admin.register(CustomUser)
+class SellerUserAdmin(TabbedTranslationAdmin):
+    list_display = (
+        "id",
+        "full_name",
+        "phone_number",
+        "status",
+        "is_active",
+        "role",
+    )
+    list_filter = ("status", "is_active", "role")
+    search_fields = ("full_name", "phone_number")
+    readonly_fields = ("last_login",)
+
+    fieldsets = (
+        (None, {
+            "fields": (
+                "phone_number",
+                "full_name",
+                "project_name",
+                "profile_photo",
+            )
+        }),
+        ("Tizim huquqlari", {
+            "fields": (
+                "role",
+                "status",
+                "is_active",
+                "is_staff",
+                "is_superuser",
+                "groups",
+                "user_permissions",
+            )
+        }),
+        ("Qo‘shimcha", {
+            "fields": (
+                "category",
+                "address",
+                "last_login",
+            )
+        }),
+        ("Parol", {
+            "fields": ("password",),
+        }),
+    )
+
+    def save_model(self, request, obj, form, change):
+        if "password" in form.changed_data:
+            obj.set_password(form.cleaned_data["password"])
+        super().save_model(request, obj, form, change)
