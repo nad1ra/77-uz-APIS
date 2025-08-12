@@ -1,4 +1,4 @@
-from django.contrib.auth.base_user import BaseUserManager
+from django.contrib.auth.models import BaseUserManager
 
 
 class CustomUserManager(BaseUserManager):
@@ -6,15 +6,15 @@ class CustomUserManager(BaseUserManager):
         if not phone_number:
             raise ValueError("Phone number is required")
 
+        extra_fields.setdefault("role", self.model.Role.SELLER)
+        extra_fields.setdefault("is_staff", False)
+        extra_fields.setdefault("is_superuser", False)
+        extra_fields.setdefault("is_active", False)
+        extra_fields.setdefault("status", self.model.Status.PENDING)
+
         user = self.model(phone_number=phone_number, **extra_fields)
 
-        if password:
-            user.set_password(password)
-            user.plain_password = password
-        else:
-            user.set_unusable_password()
-            user.plain_password = None
-
+        user.save_unusable_password()
         user.save(using=self._db)
         return user
 
@@ -31,8 +31,10 @@ class CustomUserManager(BaseUserManager):
             raise ValueError("Superuser must have is_staff=True.")
         if not extra_fields.get("is_superuser"):
             raise ValueError("Superuser must have is_superuser=True.")
-
-        return self.create_user(phone_number, password, **extra_fields)
+        user = self.model(phone_number=phone_number, **extra_fields)
+        user.set_unusable_password()
+        user.save(using=self._db)
+        return user
 
     def create_admin(self, phone_number, password=None, **extra_fields):
         extra_fields.setdefault("role", self.model.Role.ADMIN)
@@ -44,16 +46,8 @@ class CustomUserManager(BaseUserManager):
         if extra_fields.get("role") != self.model.Role.ADMIN:
             raise ValueError("Admin must have role=admin.")
 
-        return self.create_user(phone_number, password, **extra_fields)
+        user = self.model(phone_number=phone_number, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
 
-    def create_seller(self, phone_number, password=None, **extra_fields):
-        extra_fields.setdefault("role", self.model.Role.SELLER)
-        extra_fields.setdefault("is_staff", False)
-        extra_fields.setdefault("is_superuser", False)
-        extra_fields.setdefault("is_active", False)
-        extra_fields.setdefault("status", self.model.Status.PENDING)
-
-        if extra_fields.get("role") != self.model.Role.SELLER:
-            raise ValueError("Seller must have role=seller.")
-
-        return self.create_user(phone_number, password, **extra_fields)
+        return user

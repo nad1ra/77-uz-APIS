@@ -1,62 +1,40 @@
+from django import forms
 from django.contrib import admin
+from django.contrib.auth.hashers import make_password
 from modeltranslation.admin import TabbedTranslationAdmin
+
 from .models import Address, CustomUser
 
 
 @admin.register(Address)
-class AddressAdmin(admin.ModelAdmin):
+class AddressAdmin(TabbedTranslationAdmin):
     list_display = ("id", "name", "lat", "long")
     search_fields = ("name",)
     list_filter = ("lat", "long")
 
 
+class SellerChangeForm(forms.ModelForm):
+    password = forms.CharField(
+        widget=forms.PasswordInput(render_value=True),
+        required=False,
+        help_text="Yangi parol kiriting yoki bo‘sh qoldiring.",
+    )
+
+    class Meta:
+        model = CustomUser
+        fields = "__all__"
+
+    def clean_password(self):
+        password = self.cleaned_data.get("password")
+        if password and password != self.instance.password:
+            return make_password(password)
+        return self.instance.password
+
+
 @admin.register(CustomUser)
 class SellerUserAdmin(TabbedTranslationAdmin):
-    list_display = (
-        "id",
-        "full_name",
-        "phone_number",
-        "status",
-        "is_active",
-        "role",
-    )
+    form = SellerChangeForm
+    list_display = ("id", "full_name", "phone_number", "status", "is_active", "role")
     list_filter = ("status", "is_active", "role")
     search_fields = ("full_name", "phone_number")
     readonly_fields = ("last_login",)
-
-    fieldsets = (
-        (None, {
-            "fields": (
-                "phone_number",
-                "full_name",
-                "project_name",
-                "profile_photo",
-            )
-        }),
-        ("Tizim huquqlari", {
-            "fields": (
-                "role",
-                "status",
-                "is_active",
-                "is_staff",
-                "is_superuser",
-                "groups",
-                "user_permissions",
-            )
-        }),
-        ("Qo‘shimcha", {
-            "fields": (
-                "category",
-                "address",
-                "last_login",
-            )
-        }),
-        ("Parol", {
-            "fields": ("password",),
-        }),
-    )
-
-    def save_model(self, request, obj, form, change):
-        if "password" in form.changed_data:
-            obj.set_password(form.cleaned_data["password"])
-        super().save_model(request, obj, form, change)
