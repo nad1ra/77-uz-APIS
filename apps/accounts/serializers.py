@@ -2,13 +2,14 @@ from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenVerifySerializer
 from rest_framework_simplejwt.tokens import UntypedToken
 
-from .models import Address, Category, CustomUser
+from .models import Address, CustomUser
+from store.models import Category
 
 
-class AddressSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Address
-        fields = ["name", "lat", "long"]
+class AddressSerializer(serializers.Serializer):
+    name = serializers.CharField(max_length=255)
+    lat = serializers.FloatField()
+    long = serializers.FloatField()
 
 
 class SellerRegistrationSerializer(serializers.ModelSerializer):
@@ -55,7 +56,6 @@ class SellerRegistrationSerializer(serializers.ModelSerializer):
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
         data = super().validate(attrs)
-
         return {
             "access_token": data["access"],
             "refresh_token": data["refresh"],

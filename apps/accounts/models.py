@@ -1,7 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from .managers import CustomUserManager
-from store.models import Category
 
 
 class Address(models.Model):
@@ -29,7 +28,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     phone_number = models.CharField(max_length=20, unique=True)
     profile_photo = models.ImageField(upload_to="profiles/", null=True, blank=True)
     role = models.CharField(max_length=20, choices=Role.choices, default=Role.SELLER)
-    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True)
+    category = models.ForeignKey("store.Category", on_delete=models.SET_NULL, null=True, blank=True)
     address = models.OneToOneField(Address, on_delete=models.SET_NULL, null=True, blank=True)
     status = models.CharField(max_length=10, choices=Status.choices, default=Status.PENDING)
 

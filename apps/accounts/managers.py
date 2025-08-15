@@ -32,7 +32,7 @@ class CustomUserManager(BaseUserManager):
         if not extra_fields.get("is_superuser"):
             raise ValueError("Superuser must have is_superuser=True.")
         user = self.model(phone_number=phone_number, **extra_fields)
-        user.set_unusable_password()
+        user.set_password(password)
         user.save(using=self._db)
         return user
 
