@@ -1,5 +1,8 @@
-from django.db import models
+from common.models import District, Region
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
+from django.db import models
+from smart_selects.db_fields import ChainedForeignKey
+
 from .managers import CustomUserManager
 
 
@@ -32,10 +35,25 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     address = models.OneToOneField(Address, on_delete=models.SET_NULL, null=True, blank=True)
     status = models.CharField(max_length=10, choices=Status.choices, default=Status.PENDING)
 
+    region = models.ForeignKey(
+        Region, on_delete=models.SET_NULL, related_name="users", null=True, blank=True
+    )
+    district = ChainedForeignKey(
+        District,
+        chained_field="region",
+        chained_model_field="region",
+        show_all=False,
+        auto_choose=True,
+        sort=True,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+    )
+
     is_active = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
 
-    USERNAME_FIELD = 'phone_number'
+    USERNAME_FIELD = "phone_number"
 
     objects = CustomUserManager()
 
