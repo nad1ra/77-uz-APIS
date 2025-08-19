@@ -1,9 +1,9 @@
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenVerifySerializer
 from rest_framework_simplejwt.tokens import UntypedToken
+from store.models import Category
 
 from .models import Address, CustomUser
-from store.models import Category
 
 
 class AddressSerializer(serializers.Serializer):

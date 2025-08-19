@@ -32,9 +32,20 @@ class SellerChangeForm(forms.ModelForm):
 
 
 @admin.register(CustomUser)
-class SellerUserAdmin(TabbedTranslationAdmin):
+class CustomUserAdmin(TabbedTranslationAdmin):
     form = SellerChangeForm
-    list_display = ("id", "full_name", "phone_number", "status", "is_active", "role")
-    list_filter = ("status", "is_active", "role")
-    search_fields = ("full_name", "phone_number")
+    list_display = (
+        "id",
+        "full_name",
+        "phone_number",
+        "project_name",
+        "status",
+        "region",
+        "district",
+        "role",
+        "is_active",
+    )
+    list_filter = ("status", "role", "is_active", "region")
+    search_fields = ("full_name", "phone_number", "project_name")
     readonly_fields = ("last_login",)
+    list_select_related = ("region", "district")

@@ -1,5 +1,4 @@
 from modeltranslation.translator import TranslationOptions, register
-from store.models import Category
 
 from .models import Address, CustomUser
 
@@ -14,9 +13,4 @@ class CustomUserTranslationOptions(TranslationOptions):
 
 @register(Address)
 class AddressTranslationOptions(TranslationOptions):
-    fields = ("name",)
-
-
-@register(Category)
-class CategoryTranslationOptions(TranslationOptions):
     fields = ("name",)
