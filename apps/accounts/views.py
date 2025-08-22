@@ -1,29 +1,31 @@
 from common.utils.custom_response_decorator import custom_response
-from drf_yasg.utils import swagger_auto_schema
+from drf_spectacular.utils import extend_schema
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenVerifyView
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenVerifyView, TokenRefreshView
 
-from . import openapi_schema as schemas
 from .models import CustomUser
 from .serializers import (
     CustomTokenObtainPairSerializer,
     CustomTokenVerifySerializer,
+    CustomTokenRefreshSerializer,
     SellerRegistrationSerializer,
     UserMeSerializer,
     UserUpdateSerializer,
 )
 
 
+@extend_schema(
+    tags=["Accounts"],
+    description="Foydalanuvchini ro‘yxatdan o‘tkazish",
+    request=SellerRegistrationSerializer,
+    responses={201: SellerRegistrationSerializer},
+)
 @custom_response
 class SellerRegistrationView(generics.CreateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = SellerRegistrationSerializer
 
-    @swagger_auto_schema(
-        request_body=schemas.seller_registration_request,
-        responses={201: schemas.seller_registration_response},
-    )
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -31,57 +33,64 @@ class SellerRegistrationView(generics.CreateAPIView):
         return Response(serializer.to_representation(user), status=status.HTTP_201_CREATED)
 
 
+@extend_schema(
+    tags=["Accounts"],
+    description="Foydalanuvchi login (JWT token olish)",
+    request=CustomTokenObtainPairSerializer,
+    responses={200: CustomTokenObtainPairSerializer},
+)
 @custom_response
 class CustomLoginView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
 
-    @swagger_auto_schema(
-        request_body=schemas.login_request, responses={200: schemas.login_response}
-    )
-    def post(self, request, *args, **kwargs):
-        return super().post(request, *args, **kwargs)
+
+@extend_schema(
+    tags=["Accounts"],
+    description="JWT tokenni yangilash (refresh)",
+    request=CustomTokenRefreshSerializer,
+    responses={200: CustomTokenRefreshSerializer},
+)
+@custom_response
+class CustomTokenRefreshView(TokenRefreshView):
+    serializer_class = CustomTokenRefreshSerializer
 
 
+
+@extend_schema(
+    tags=["Accounts"],
+    description="JWT tokenni tekshirish",
+    request=CustomTokenVerifySerializer,
+    responses={200: CustomTokenVerifySerializer},
+)
 @custom_response
 class CustomTokenVerifyView(TokenVerifyView):
     serializer_class = CustomTokenVerifySerializer
 
-    @swagger_auto_schema(
-        request_body=schemas.token_verify_request, responses={200: schemas.token_verify_response}
-    )
-    def post(self, request, *args, **kwargs):
-        return super().post(request, *args, **kwargs)
 
-
+@extend_schema(
+    tags=["Accounts"],
+    description="Hozirgi foydalanuvchi haqida ma'lumot olish",
+    responses={200: UserMeSerializer},
+)
 @custom_response
 class MeView(generics.RetrieveAPIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = UserMeSerializer
 
-    @swagger_auto_schema(responses={200: schemas.me_response})
-    def get(self, request, *args, **kwargs):
-        return super().get(request, *args, **kwargs)
-
     def get_object(self):
         return self.request.user
 
 
+@extend_schema(
+    tags=["Accounts"],
+    description="Hozirgi foydalanuvchi ma'lumotini yangilash",
+    request=UserUpdateSerializer,
+    responses={200: UserUpdateSerializer},
+)
 @custom_response
 class UserEditView(generics.UpdateAPIView):
     serializer_class = UserUpdateSerializer
     permission_classes = [permissions.IsAuthenticated]
-
-    @swagger_auto_schema(
-        request_body=schemas.edit_put_request, responses={200: schemas.edit_put_response}
-    )
-    def put(self, request, *args, **kwargs):
-        return self.update(request, *args, **kwargs)
-
-    @swagger_auto_schema(
-        request_body=schemas.edit_patch_request, responses={200: schemas.edit_patch_response}
-    )
-    def patch(self, request, *args, **kwargs):
-        return self.partial_update(request, *args, **kwargs)
 
     def get_object(self):
         return self.request.user

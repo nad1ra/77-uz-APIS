@@ -1,4 +1,5 @@
 import uuid
+from django.utils import timezone
 from django.utils.text import slugify
 from django.db import models
 
@@ -35,7 +36,7 @@ class Page(BaseModel):
 class Region(BaseModel):
     name = models.CharField(max_length=200, verbose_name="Region name")
 
-    def str(self):
+    def __str__(self):
         return self.name
 
 

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenVerifySerializer
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenVerifySerializer, TokenRefreshSerializer
 from rest_framework_simplejwt.tokens import UntypedToken
 from store.models import Category
 
@@ -24,8 +24,8 @@ class SellerRegistrationSerializer(serializers.ModelSerializer):
             "id",
             "full_name",
             "project_name",
-            "phone_number",
             "category",
+            "phone_number",
             "category_id",
             "address",
             "status",
@@ -65,6 +65,11 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
                 "phone_number": self.user.phone_number,
             },
         }
+
+class CustomTokenRefreshSerializer(TokenRefreshSerializer):
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        return {"access_token": data["access"]}
 
 
 class CustomTokenVerifySerializer(TokenVerifySerializer):

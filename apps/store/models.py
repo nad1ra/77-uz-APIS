@@ -1,6 +1,8 @@
 from django.conf import settings
 from django.db import models
 from django.utils.text import slugify
+from accounts.models import Address
+from common.models import Region
 
 
 class Category(models.Model):
@@ -13,6 +15,7 @@ class Category(models.Model):
     )
     name = models.CharField(max_length=50)
     icon = models.ImageField(upload_to="category_icons/", null=True, blank=True)
+    type = models.CharField(max_length=50, blank=True, null=True)
 
     class Meta:
         verbose_name = "Category"
@@ -35,6 +38,7 @@ class Ad(models.Model):
     description = models.TextField()
     price = models.DecimalField(max_digits=14, decimal_places=2)
     seller = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="ads")
+    address = models.ForeignKey(Address, on_delete=models.CASCADE, related_name="ads", null=True, blank=True)
     published_at = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=10, choices=Status.choices, default=Status.ACTIVE)
     view_count = models.PositiveIntegerField(default=0)
@@ -106,4 +110,43 @@ class FavouriteProduct(models.Model):
         product_name = self.product.name if self.product_id else "No Product"
         user_or_device = self.user or self.device_id or "Anonymous"
         return f"{user_or_device} -> {product_name}"
+
+
+class MySearch(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True
+    )
+    category = models.ForeignKey(
+        Category,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
+    search_query = models.CharField(max_length=255)
+    price_min = models.PositiveIntegerField(null=True, blank=True)
+    price_max = models.PositiveIntegerField(null=True, blank=True)
+    region = models.ForeignKey(
+        Region,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.search_query} ({self.category})"
+
+
+class SearchCount(models.Model):
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='search_counts')
+    search_count = models.PositiveIntegerField(default=0)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.category.name} - {self.search_count}"
+
+
 
