@@ -28,7 +28,7 @@ Modules:
 Hi! My name is **Nodira Abduvaliyeva**.  
 I’m a backend developer specializing in Django and REST APIs.  
 📧 Email: nodira@example.com    
-🌐 GitHub: [github.com/nodira](https://github.com/nodira)  
+🌐 GitHub: [github.com/nodira](https://github.com/nad1ra)  
 
 ---
 
@@ -51,7 +51,7 @@ I’m a backend developer specializing in Django and REST APIs.
 Привет! Меня зовут **Нодира Абдувалиева**.  
 Я backend-разработчик, специализируюсь на Django и REST API.  
 📧 Email: nodira@example.com  
-🌐 GitHub: [github.com/nodira](https://github.com/nodira)  
+🌐 GitHub: [github.com/nodira](https://github.com/nad1ra)  
 
 ---
 
@@ -74,7 +74,7 @@ Modullar:
 Salom! Mening ismim **Nodira Abduvaliyeva**.  
 Men backend dasturchiman, Django va REST API bo‘yicha ishlayman.  
 📧 Email: nodira@example.com   
-🌐 GitHub: [github.com/nodira](https://github.com/nodira)  
+🌐 GitHub: [github.com/nodira](https://github.com/nad1ra)  
 
 ---
 
@@ -97,4 +97,4 @@ Men backend dasturchiman, Django va REST API bo‘yicha ishlayman.
 안녕하세요! 제 이름은 **Nodira Abduvaliyeva**입니다.  
 저는 Django와 REST API에 특화된 백엔드 개발자입니다.  
 📧 이메일: nodira@example.com    
-🌐 깃허브: [github.com/nodira](https://github.com/nodira)  
+🌐 깃허브: [github.com/nodira](https://github.com/nad1ra)  
